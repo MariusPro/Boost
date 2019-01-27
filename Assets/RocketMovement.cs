@@ -6,34 +6,42 @@ using UnityEngine;
 public class RocketMovement : MonoBehaviour
 {
 
-    Rigidbody rigidbody;
+    Rigidbody rigidBody;
     AudioSource audioSource;
+    [SerializeField] float mainThrust = 100f;
+    [SerializeField] float rcsThrust = 100f;
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        ProcessInput();
+        Thrust();
+        Rotation();
     }
-
-    private void ProcessInput()
-    {/*
-        if (Input.GetKeyDown(KeyCode.Space))
+    private void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
         {
-            audioSource.Play();
+            case "Friendly":
+                print("Ok");
+                break;
+            default:
+                print("DEAD");
+                break;
         }
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            audioSource.Stop();
-        }*/
+        
+    }
+    private void Thrust()
+    {
+        float mainThurstPerFrame = mainThrust * Time.deltaTime;
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidbody.AddRelativeForce(Vector3.up);
+            rigidBody.AddRelativeForce(Vector3.up * mainThurstPerFrame);
             if (!audioSource.isPlaying)
             {
                 audioSource.Play();
@@ -43,13 +51,21 @@ public class RocketMovement : MonoBehaviour
         {
             audioSource.Stop();
         }
+    }
+    private void Rotation()
+    {
+        float rcsThurstPerFrame = rcsThrust * Time.deltaTime;
+        rigidBody.freezeRotation = true;
         if (Input.GetKey(KeyCode.A))
         {
-            transform.Rotate(Vector3.forward);
+            transform.Rotate(Vector3.forward * rcsThurstPerFrame);
         }
-        else if(Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(-(Vector3.forward));
+            transform.Rotate(-(Vector3.forward) * rcsThurstPerFrame);
         }
+        rigidBody.freezeRotation = false;
     }
+
+
 }
